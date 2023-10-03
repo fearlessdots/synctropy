@@ -81,6 +81,20 @@ By default, all files will be installed to their respectives subdirectories unde
 make install DESTDIR=/data/data/com.termux/files
 ```
 
+### Initializing User Data Directory
+
+Before you begin using `synctropy`, you should create the user data directory by executing the following command:
+
+```bash
+synctropy init
+```
+
+By default, this command will generate the necessary directory structure under `~/synctropy`. However, if you prefer a different location for your data directory, you can specify a custom path using the `-D` flag as shown below:
+
+```bash
+synctropy init -D <custom_data_dir>
+```
+
 ## Usage
 
 The general usage of Synctropy is as follows:
@@ -125,6 +139,7 @@ synctropy docs generate -o <output_dir>
 
 - synctropy: The main command for the program.
   - version: Show the program's version.
+  - init: Create user data directory
   - docs: Program documentation.
     - generate: Generate program documentation (markdown files).
   - utils: Utilities for hooks execution.
@@ -193,7 +208,11 @@ Think of a crate as a container that holds the necessary information to establis
 
 #### Creating a Crate
 
-To create a new crate, you can use the `crates create` command. This command will prompt you for a crate name and allow you to select a template, which provides a pre-configured setup for common synchronization scenarios. The newly created crate will have its own directory containing configuration files and hooks (accordingly to the template selected).
+To create a new crate, you can utilize the `crates create` command. This command will guide you through the process by prompting for a crate name and allowing you to choose a template. Templates provide pre-configured setups for common synchronization scenarios.
+
+If there are no crate templates available or if you prefer to have a minimal setup with just the crate directory and a `targets` subdirectory, you can select the `scratch` template. This template will only create the necessary directories and will not include any additional configuration files or hooks.
+
+After creating the crate, a new directory will be generated specifically for that crate. This directory will contain the relevant configuration files and hooks, based on the selected template.
 
 #### Managing Crates
 
@@ -260,7 +279,6 @@ For managing hooks at the crate level, you can use the following subcommands:
 crates hooks run --crate <crate_name> --hook <first_hook> --hook <second_hook>
 ```
 
-
 ##### Temporary Directory
 
 When running hooks for crates, a temporary directory is created for each crate. This temporary directory serve as a workspace for performing actions or modifications during the hook execution process. It is called `.tmp` and created within the crate directory itself. This crate-specific temporary directory provides a separate workspace for any temporary files or data specific to the individual crate and can be used for any shared temporary files or data required by the hook scripts across multiple targets within the same crate. It allows the hooks to operate within a context that is isolated to the crate directory.
@@ -277,7 +295,9 @@ Once the hook execution is complete, the temporary directory and its contents ar
 
 #### Creating a Target
 
-To create a new target, you can use the `targets create` command. This command will prompt you to select a parent crate and provide a name for the target. You can also choose a template to pre-configure the target's setup. The target directory will be created within the crate's directory, and you can customize its configurations and hooks.
+To create a new target, you can use the `targets create` command. This command will guide you through the process by allowing you to select a parent crate and provide a name for the target. Additionally, you can choose a template to pre-configure the target's setup according to your requirements.
+
+If there are no target templates available or if you prefer a minimal setup for your target, you can select the `scratch` template during the target creation process. This template will create only the target's directory. It will not include any additional configuration files or hooks, providing you with a clean slate to customize according to your needs.
 
 #### Managing Targets
 
