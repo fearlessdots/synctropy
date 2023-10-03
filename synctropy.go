@@ -70,11 +70,15 @@ func main() {
 
 			space()
 
+			if userDataDir == "" {
+				userDataDir = program.userDataDir
+			}
+
+			showText(fmt.Sprintf("Creating user data directory at %v", green.Sprintf(userDataDir)), program.indentLevel)
+
 			if _, err := os.Stat(program.userDataDir); os.IsNotExist(err) {
-				showText(fmt.Sprintf("Creating user data directory at %v", green.Sprintf(userDataDir)), program.indentLevel)
-				verifyUserDataDirectory("", program)
+				verifyUserDataDirectory(false, decrementProgramIndentLevel(program, 1))
 			} else {
-				showText(fmt.Sprintf("Creating user data directory at %v", green.Sprintf(program.userDataDir)), program.indentLevel)
 				showAttention("> User data directory already exists", program.indentLevel+1)
 			}
 		},
@@ -399,7 +403,7 @@ func main() {
 			}
 
 			// Verify user data directory
-			response := verifyUserDataDirectory("", program)
+			response := verifyUserDataDirectory(true, program)
 			handleFunctionResponse(response, true)
 
 			space()
@@ -550,7 +554,7 @@ func main() {
 			}
 
 			// Verify user data directory
-			response := verifyUserDataDirectory("", program)
+			response := verifyUserDataDirectory(true, program)
 			handleFunctionResponse(response, true)
 
 			space()

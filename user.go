@@ -39,10 +39,8 @@ func getCurrentUserHomeDir(program Program) string {
 	return currentUser.HomeDir
 }
 
-func verifyUserDataDirectory(customSectionTitle string, program Program) functionResponse {
-	if customSectionTitle != "" {
-		showInfoSectionTitle(customSectionTitle, program.indentLevel)
-	} else {
+func verifyUserDataDirectory(printSectionTitle bool, program Program) functionResponse {
+	if printSectionTitle == true {
 		showInfoSectionTitle("Verifying user data directory", program.indentLevel)
 	}
 
