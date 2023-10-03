@@ -1,0 +1,31 @@
+# Sync general options
+label = $LABEL
+log = true
+
+# Roots of the synchronization
+root = $PRIMARY_DIR
+root = $PROTOCOL://$HOST/$SECONDARY_DIR
+
+# Arguments for SSH
+sshargs = -p 22
+
+# Names and paths to ignore
+ignore = Name .stfolder*
+ignore = Name .stversions*
+ignore = Name *.tmp
+ignore = Name temp.*
+ignore = Name *.o
+ignore = Name empty.txt
+ignore = Name lost+found
+ignore = Name .syncrclone
+ignore = Name .mypy_cache
+ignore = Name __pycache__
+ignore = Name .unison
+ignore = Name *unison
+ignore = Name *.ignore*
+ignore = Name .thumbnails
+
+# Backup configuration
+backuplocation = local
+backup = Name *
+backupprefix = .unison_backup/$VERSION.

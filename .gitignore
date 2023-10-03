@@ -1,0 +1,8 @@
+*.tar.gz
+*.tar.zst
+pkg
+src
+go.sum
+synctropy
+.kateproject
+*.kate-swp

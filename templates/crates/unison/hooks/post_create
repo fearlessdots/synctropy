@@ -1,0 +1,88 @@
+#!/usr/bin/bash
+set -e
+
+#
+## CRATE CONFIGURATION FILE
+#
+
+# Get crate configuration from user input
+crateName=${CRATE_NAME}
+crateDescription=$(gum input --prompt "> Crate description -> " --cursor.mode "blink" --value "")
+if [ $? -ne 0 ]; then
+	${SYNCTROPY_UTILS} error "Failed to get user input"
+	exit 1
+fi
+crateProtocol=$(gum input --prompt "> Protocol (default: ssh) -> " --cursor.mode "blink" --value "ssh")
+if [ $? -ne 0 ]; then
+	${SYNCTROPY_UTILS} error "Failed to get user input"
+	exit 1
+fi
+crateHost=$(gum input --prompt "> Host -> " --cursor.mode "blink" --value "")
+if [ $? -ne 0 ]; then
+	${SYNCTROPY_UTILS} error "Failed to get user input"
+	exit 1
+fi
+
+# Verify if crate will use the SSH protocol
+if [ "${crateProtocol}" = "ssh" ]; then
+	crateSSHEnabled=true
+	crateSSHKeyPath=$(gum input --prompt "> SSH key path -> " --cursor.mode "blink" --value "${HOME}/.ssh/")
+	if [ $? -ne 0 ]; then
+		${SYNCTROPY_UTILS} error "Failed to get user input"
+		exit 1
+	fi
+else
+	crateSSHEnabled=false
+	crateSSHKeyPath=""
+fi
+
+# Display configuration and ask for user confirmation
+echo ""
+echo "Crate configuration:"
+echo ""
+${SYNCTROPY_UTILS} hr '-' 0.45
+echo "$($SYNCTROPY_UTILS msg '#58ff74' 'Name:') ${crateName}"
+echo "$($SYNCTROPY_UTILS msg '#58ff74' 'Description:') ${crateDescription}"
+echo "$($SYNCTROPY_UTILS msg '#58ff74' 'Protocol:') ${crateProtocol}"
+echo "$($SYNCTROPY_UTILS msg '#58ff74' 'Host:') ${crateHost}"
+${SYNCTROPY_UTILS} hr '-' 0.45
+echo ""
+
+echo ""
+echo "Crate SSH configuration:"
+echo ""
+${SYNCTROPY_UTILS} hr '-' 0.45
+echo "$($SYNCTROPY_UTILS msg '#58ff74' 'Enabled:') ${crateSSHEnabled}"
+echo "$($SYNCTROPY_UTILS msg '#58ff74' 'Key path:') ${crateSSHKeyPath}"
+${SYNCTROPY_UTILS} hr '-' 0.45
+echo ""
+
+gum confirm "Write content to crate configuration file?" || (${SYNCTROPY_UTILS} error "> Operation cancelled by the user" && exit 1)
+
+# Create the JSON content
+jsonContent=$(jq -n \
+--arg name "${crateName}" \
+--arg description "${crateDescription}" \
+--arg protocol "${crateProtocol}" \
+--arg host "${crateHost}" \
+--arg sshEnabled "${crateSSHEnabled}" \
+--arg sshKeyPath "${crateSSHKeyPath}" \
+'{
+	"name": $name,
+	"description": $description,
+	"protocol": $protocol,
+	"host": $host,
+	"ssh" : {
+		"enabled": $sshEnabled,
+		"keyPath": $sshKeyPath
+	}
+}')
+
+# Write content to configuration file
+echo "${jsonContent}" > ${CRATE_DIR}/config.json
+if [ $? -ne 0 ]; then
+	${SYNCTROPY_UTILS} error "Failed to write to configuration file"
+	exit 1
+fi
+
+exit 0

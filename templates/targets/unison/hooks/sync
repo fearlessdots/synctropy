@@ -1,0 +1,37 @@
+#!/usr/bin/bash
+set -e
+
+#
+## SET SSH-AGENT ENVIRONMENT
+#
+
+export SSH_AGENT_PID=$(${SYNCTROPY_UTILS} sshagent-getpid ${CRATE_TEMP_DIR})
+export SSH_AUTH_SOCK=$(${SYNCTROPY_UTILS} sshagent-getsock ${CRATE_TEMP_DIR})
+
+#
+## CONFIGURATION VARIABLES
+#
+
+UNISON_EXEC="unison"
+
+#
+## FUNCTIONS
+#
+
+verify_unison_profile() {
+	if ! [ -f  ${TARGET_DIR}/unison/${TARGET_NAME}.prf ]
+	then
+		${SYNCTROPY_UTILS} error "Unison profile not found at '${TARGET_DIR}/unison/${TARGET_NAME}.prf'"
+		exit 1
+	fi
+}
+
+#
+##
+#
+
+verify_unison_profile
+
+SSH_AGENT_PID=${SSH_AGENT_PID} SSH_AUTH_SOCK=${SSH_AUTH_SOCK} UNISON=${TARGET_DIR}/unison ${UNISON_EXEC} ${TARGET_NAME}
+
+exit $?

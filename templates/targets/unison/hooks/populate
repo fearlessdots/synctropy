@@ -1,0 +1,35 @@
+#!/usr/bin/bash
+set -e
+
+#
+## CONFIGURATION VARIABLES
+#
+
+UNISON_EXEC="unison"
+RSYNC_EXEC="rsync"
+RSYNC_OPTIONS="--info=progress2 -rzvhuLP --exclude "'*.unison'""
+
+#
+## FUNCTIONS
+#
+
+verify_unison_profile() {
+	if ! [ -f  ${TARGET_DIR}/unison/${TARGET_NAME}.prf ]
+	then
+		${SYNCTROPY_UTILS} error "Unison profile not found at '${TARGET_DIR}/unison/${TARGET_NAME}.prf'"
+		exit 1
+	fi
+}
+
+#
+##
+#
+
+verify_unison_profile
+
+primary_dir=$(cat ${TARGET_DIR}/unison/${TARGET_NAME}.prf | grep root | head -n 2 | sed -sn 1p | awk -F ' = ' '{print $2}')
+secondary_dir=$(cat ${TARGET_DIR}/unison/${TARGET_NAME}.prf | grep root | head -n 2 | sed -sn 2p | awk -F ' = ' '{print $2}' | sed -e 's#ssh://##g' -e 's#//#:/#g')
+
+${RSYNC_EXEC} ${RSYNC_OPTIONS} ${primary_dir}/ ${secondary_dir}/
+
+exit $?

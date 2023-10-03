@@ -1,0 +1,30 @@
+#!/usr/bin/bash
+set -e
+
+#
+## CONFIGURATION VARIABLES
+#
+
+DEFAULT_VIEWER="bat"
+
+#
+## FUNCTIONS
+#
+
+verify_config_file() {
+	if ! [ -f ${CRATE_DIR}/config.json ]
+	then
+		${SYNCTROPY_UTILS} error "Config file not found at '${CRATE_DIR}/config.json'"
+		exit 1
+	fi
+}
+
+#
+##
+#
+
+verify_config_file
+
+${DEFAULT_VIEWER} ${CRATE_DIR}/config.json
+
+exit $?

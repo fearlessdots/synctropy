@@ -1,0 +1,30 @@
+#!/usr/bin/bash
+set -e
+
+#
+## CONFIGURATION VARIABLES
+#
+
+DEFAULT_EDITOR="micro"
+
+#
+## FUNCTIONS
+#
+
+verify_unison_profile() {
+	if ! [ -f  ${TARGET_DIR}/unison/${TARGET_NAME}.prf ]
+	then
+		${SYNCTROPY_UTILS} error "Unison profile not found at '${TARGET_DIR}/unison/${TARGET_NAME}.prf'"
+		exit 1
+	fi
+}
+
+#
+##
+#
+
+verify_unison_profile
+
+${DEFAULT_EDITOR} ${TARGET_DIR}/unison/${TARGET_NAME}.prf
+
+exit $?

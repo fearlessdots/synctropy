@@ -1,0 +1,40 @@
+#!/usr/bin/bash
+set -e
+
+#
+## FUNCTIONS
+#
+
+is_ssh_enabled() {
+	sshEnabled=$(cat ${CRATE_DIR}/config.json | jq -r '.ssh.enabled')
+	if ! [ $? = 0 ]; then
+		${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file."
+		exit 1
+	fi
+
+	if [ "${sshEnabled}" = "true" ]; then
+		return 0
+	elif [ "${sshEnabled}" = "false" ]; then
+		return 1
+	else
+		# Invalid configuration
+		${SYNCTROPY_UTILS} error "Could not determine if SSH is enabled in crate configuration file"
+		exit 1
+	fi
+}
+
+#
+##
+#
+
+if is_ssh_enabled; then
+	${SYNCTROPY_UTILS} sshagent-stop ${CRATE_TEMP_DIR}
+	if ! [ $? = 0 ]; then
+		${SYNCTROPY_UTILS} error "Failed to stop SSH agent"
+		exit 1
+	fi
+else
+	${SYNCTROPY_UTILS} attention "SSH is disabled in crate configuration"
+fi
+
+exit 0
