@@ -62,6 +62,24 @@ func main() {
 		},
 	}
 
+	var userInitCmd = &cobra.Command{
+		Use:   "init",
+		Short: "Create user data directory",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(program.nameAscii)
+
+			space()
+
+			showText(fmt.Sprintf("Creating user data directory at %v", green.Sprintf(userDataDir)), program.indentLevel)
+
+			if _, err := os.Stat(program.userDataDir); os.IsNotExist(err) {
+				verifyUserDataDirectory("", program)
+			} else {
+				showAttention("> User data directory already exists", program.indentLevel+1)
+			}
+		},
+	}
+
 	var docsCmd = &cobra.Command{
 		Use:   "docs",
 		Short: "Program documentation",
@@ -381,7 +399,7 @@ func main() {
 			}
 
 			// Verify user data directory
-			response := verifyUserDataDirectory(program)
+			response := verifyUserDataDirectory("", program)
 			handleFunctionResponse(response, true)
 
 			space()
@@ -532,7 +550,7 @@ func main() {
 			}
 
 			// Verify user data directory
-			response := verifyUserDataDirectory(program)
+			response := verifyUserDataDirectory("", program)
 			handleFunctionResponse(response, true)
 
 			space()
@@ -739,6 +757,7 @@ func main() {
 	rootCmd.AddCommand(targetsCmd)
 	rootCmd.AddCommand(utilitiesCmd)
 	rootCmd.AddCommand(showVersionCmd)
+	rootCmd.AddCommand(userInitCmd)
 	rootCmd.AddCommand(docsCmd)
 
 	docsCmd.AddCommand(docsGenerateCmd)

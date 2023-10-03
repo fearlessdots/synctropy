@@ -582,19 +582,12 @@ func targetsCreate(program Program) functionResponse {
 	}
 	availableTemplates = filterHiddenFilesAndDirectories(availableTemplates)
 
-	if len(availableTemplates) == 0 {
-		space()
-		return functionResponse{
-			exitCode:    1,
-			message:     "No target templates available",
-			logLevel:    "attention",
-			indentLevel: program.indentLevel,
-		}
-	}
-
-	availableTemplatesStrings := make([]string, len(availableTemplates))
+	availableTemplatesStrings := make([]string, len(availableTemplates)+1)
+	// Add a 'scratch' (empty) pseudo-template
+	availableTemplatesStrings[0] = "scratch"
+	// Add the available templates
 	for i, element := range availableTemplates {
-		availableTemplatesStrings[i] = element.Name()
+		availableTemplatesStrings[i+1] = element.Name()
 	}
 
 	promptTargetTemplate := &survey.Select{
@@ -612,7 +605,15 @@ func targetsCreate(program Program) functionResponse {
 			}
 		}
 	}
-	targetTemplateDir := program.userTargetsTemplatesDir + "/" + targetTemplate
+
+	// Verify if the scratch template was selected
+	var targetTemplateDir string
+	scratchTemplate := false
+	if targetTemplate == "scratch" {
+		scratchTemplate = true
+	} else {
+		targetTemplateDir = program.userTargetsTemplatesDir + "/" + targetTemplate
+	}
 
 	showInfoSectionTitle(displayTargetTag("Creating target", target), program.indentLevel)
 
@@ -649,32 +650,34 @@ func targetsCreate(program Program) functionResponse {
 	handleFunctionResponse(response, false)
 
 	// Copy template to target directory
-	space()
-	showInfoSectionTitle("Copying template to target directory", program.indentLevel+1)
-	copyOptions := copy.Options{
-		PreserveTimes: true,
-		PreserveOwner: true,
-	}
-
-	err = copy.Copy(targetTemplateDir, target.path, copyOptions)
-	if err != nil {
-		// Remove target directory
-		_ = os.RemoveAll(target.path)
-
-		return functionResponse{
-			exitCode:    1,
-			message:     fmt.Sprintf("Failed to copy template -> " + err.Error()),
-			logLevel:    "error",
-			indentLevel: program.indentLevel + 2,
+	if scratchTemplate == false {
+		space()
+		showInfoSectionTitle("Copying template to target directory", program.indentLevel+1)
+		copyOptions := copy.Options{
+			PreserveTimes: true,
+			PreserveOwner: true,
 		}
-	} else {
-		response := functionResponse{
-			exitCode:    0,
-			message:     "Finished",
-			logLevel:    "success",
-			indentLevel: program.indentLevel + 2,
+
+		err = copy.Copy(targetTemplateDir, target.path, copyOptions)
+		if err != nil {
+			// Remove target directory
+			_ = os.RemoveAll(target.path)
+
+			return functionResponse{
+				exitCode:    1,
+				message:     fmt.Sprintf("Failed to copy template -> " + err.Error()),
+				logLevel:    "error",
+				indentLevel: program.indentLevel + 2,
+			}
+		} else {
+			response := functionResponse{
+				exitCode:    0,
+				message:     "Finished",
+				logLevel:    "success",
+				indentLevel: program.indentLevel + 2,
+			}
+			handleFunctionResponse(response, false)
 		}
-		handleFunctionResponse(response, false)
 	}
 
 	// Run post_create hook (if any)

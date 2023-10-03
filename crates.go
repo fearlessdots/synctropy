@@ -375,19 +375,12 @@ func cratesCreate(program Program) functionResponse {
 	}
 	availableTemplates = filterHiddenFilesAndDirectories(availableTemplates)
 
-	if len(availableTemplates) == 0 {
-		space()
-		return functionResponse{
-			exitCode:    1,
-			message:     "No crate templates available",
-			logLevel:    "attention",
-			indentLevel: program.indentLevel,
-		}
-	}
-
-	availableTemplatesStrings := make([]string, len(availableTemplates))
+	availableTemplatesStrings := make([]string, len(availableTemplates)+1)
+	// Add a 'scratch' (empty) pseudo-template
+	availableTemplatesStrings[0] = "scratch"
+	// Add the available templates
 	for i, element := range availableTemplates {
-		availableTemplatesStrings[i] = element.Name()
+		availableTemplatesStrings[i+1] = element.Name()
 	}
 
 	promptTemplate := &survey.Select{
@@ -405,7 +398,15 @@ func cratesCreate(program Program) functionResponse {
 			}
 		}
 	}
-	crateTemplateDir := program.userCratesTemplatesDir + "/" + crateTemplate
+
+	// Verify if the scratch template was selected
+	var crateTemplateDir string
+	scratchTemplate := false
+	if crateTemplate == "scratch" {
+		scratchTemplate = true
+	} else {
+		crateTemplateDir = program.userCratesTemplatesDir + "/" + crateTemplate
+	}
 
 	showInfoSectionTitle(displayCrateTag("Creating crate", crate), program.indentLevel)
 
@@ -452,32 +453,34 @@ func cratesCreate(program Program) functionResponse {
 	handleFunctionResponse(response, false)
 
 	// Copy template to crate directory
-	space()
-	showInfoSectionTitle("Copying template to crate directory", program.indentLevel+1)
-	copyOptions := copy.Options{
-		PreserveTimes: true,
-		PreserveOwner: true,
-	}
-
-	err = copy.Copy(crateTemplateDir, crate.path, copyOptions)
-	if err != nil {
-		// Remove crate directory
-		_ = os.RemoveAll(crate.path)
-
-		return functionResponse{
-			exitCode:    1,
-			message:     fmt.Sprintf("Failed to copy template -> " + err.Error()),
-			logLevel:    "error",
-			indentLevel: program.indentLevel + 2,
+	if scratchTemplate == false {
+		space()
+		showInfoSectionTitle("Copying template to crate directory", program.indentLevel+1)
+		copyOptions := copy.Options{
+			PreserveTimes: true,
+			PreserveOwner: true,
 		}
-	} else {
-		response := functionResponse{
-			exitCode:    0,
-			message:     "Finished",
-			logLevel:    "success",
-			indentLevel: program.indentLevel + 2,
+
+		err = copy.Copy(crateTemplateDir, crate.path, copyOptions)
+		if err != nil {
+			// Remove crate directory
+			_ = os.RemoveAll(crate.path)
+
+			return functionResponse{
+				exitCode:    1,
+				message:     fmt.Sprintf("Failed to copy template -> " + err.Error()),
+				logLevel:    "error",
+				indentLevel: program.indentLevel + 2,
+			}
+		} else {
+			response := functionResponse{
+				exitCode:    0,
+				message:     "Finished",
+				logLevel:    "success",
+				indentLevel: program.indentLevel + 2,
+			}
+			handleFunctionResponse(response, false)
 		}
-		handleFunctionResponse(response, false)
 	}
 
 	// Run post_create hook (if any)

@@ -39,8 +39,12 @@ func getCurrentUserHomeDir(program Program) string {
 	return currentUser.HomeDir
 }
 
-func verifyUserDataDirectory(program Program) functionResponse {
-	showInfoSectionTitle("Verifying user data directory", program.indentLevel)
+func verifyUserDataDirectory(customSectionTitle string, program Program) functionResponse {
+	if customSectionTitle != "" {
+		showInfoSectionTitle(customSectionTitle, program.indentLevel)
+	} else {
+		showInfoSectionTitle("Verifying user data directory", program.indentLevel)
+	}
 
 	createdDirectories := false
 	if _, err := os.Stat(program.userDataDir); os.IsNotExist(err) {
