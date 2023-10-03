@@ -32,11 +32,17 @@ GO_BUILD_LDFLAGS=-w
 .PHONY: clean
 clean:
 	@echo "====> Removing binary"
-	rm ${BINARY_NAME}
+	if [ -f ${BINARY_NAME} ]; then \
+		rm ${BINARY_NAME}; \
+	fi
 	@echo "====> Removing autocompletion files"
-	rm -rf ${AUTOCOMPLETION_OUT}
+	if [ -d ${AUTOCOMPLETION_OUT} ]; then \
+		rm -rf ${AUTOCOMPLETION_OUT}; \
+	fi
 	@echo "====> Removing documentation"
-	rm -rf ${DOCS_OUT}
+	if [ -d ${DOCS_OUT} ]; then \
+		rm -rf ${DOCS_OUT}; \
+	fi
 
 .PHONY: deps
 deps:
