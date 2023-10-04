@@ -803,7 +803,10 @@ func targetsLs(crates []Crate, program Program) functionResponse {
 		showInfoSectionTitle(displayCrateTag("Listing targets", crate), program.indentLevel)
 
 		targets, response := getCrateTargets(crate, program)
-		handleFunctionResponse(response, true)
+		if response.exitCode != 0 {
+			response.indentLevel = program.indentLevel + 1
+			handleFunctionResponse(response, true)
+		}
 
 		space()
 
