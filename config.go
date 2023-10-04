@@ -77,7 +77,7 @@ func initializeDefaultProgram(customUserDataDir string) Program {
 
 	// DEFAULT SHELL
 	programDefaultShellName := "sh" // Should work on all Unix systems (Linux, Android, ...)
-	programDefaultShellPath := getDefaultShellAbsolutePath(programDefaultShellName)
+	//programDefaultShellPath := getDefaultShellAbsolutePath(programDefaultShellName)
 
 	// USER DIRECTORIES
 	var userDataDir string
@@ -102,7 +102,7 @@ func initializeDefaultProgram(customUserDataDir string) Program {
 		exec:                    programExec,
 		shortDescription:        programShortDescription,
 		longDescription:         programLongDescription,
-		defaultShell:            programDefaultShellPath,
+		defaultShell:            programDefaultShellName,
 		userDataDir:             userDataDir,
 		userCratesDir:           userCratesDir,
 		userTemplatesDir:        userTemplatesDir,
