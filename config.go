@@ -8,11 +8,11 @@ import (
 	// Modules in GOROOT
 	"fmt"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 
 	// External modules
-	ptywrapper "github.com/fearlessdots/ptywrapper"
 	color "github.com/gookit/color"
 )
 
@@ -37,33 +37,18 @@ type Program struct {
 }
 
 func getDefaultShellAbsolutePath(shellName string) string {
-	cmd := &ptywrapper.Command{
-		Entry:   "which",
-		Args:    []string{shellName},
-		Discard: true,
-	}
+	// Get shell absolute path using `which`
+	cmd := exec.Command("which", shellName)
 
-	completedCmd, err := cmd.RunInPTY()
+	output, err := cmd.CombinedOutput()
+	outputString := string(output)
+
 	if err != nil {
-		showError(fmt.Sprintf("Failed to get absolute path to default shell '%v' -> %v", shellName, err.Error()), 0)
-
-		space()
-		fmt.Println(completedCmd.Output)
-		space()
-
-		finishProgram(1)
-	}
-	if completedCmd.ExitCode != 0 {
-		showError(fmt.Sprintf("Failed to get absolute path to default shell '%v'", shellName), 0)
-
-		space()
-		fmt.Println(completedCmd.Output)
-		space()
-
+		showError(fmt.Sprintf("Failed to get absolute path to default shell '%v' -> %v", shellName, outputString), 0)
 		finishProgram(1)
 	}
 
-	return completedCmd.Output
+	return outputString
 }
 
 func initializeDefaultProgram(customUserDataDir string) Program {
