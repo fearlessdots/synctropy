@@ -659,7 +659,7 @@ func cratesLs(program Program) functionResponse {
 	crates, response := getUserCrates(program)
 	if response.exitCode != 0 {
 		response.indentLevel = program.indentLevel + 1
-		handleFunctionResponse(response, true)
+		return response
 	}
 
 	space()

@@ -805,7 +805,7 @@ func targetsLs(crates []Crate, program Program) functionResponse {
 		targets, response := getCrateTargets(crate, program)
 		if response.exitCode != 0 {
 			response.indentLevel = program.indentLevel + 1
-			handleFunctionResponse(response, true)
+			return response
 		}
 
 		space()
