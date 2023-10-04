@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	// External modules
+	ptywrapper "github.com/fearlessdots/ptywrapper"
 	color "github.com/gookit/color"
 )
 
@@ -33,6 +34,36 @@ type Program struct {
 	userTargetsTemplatesDir string
 	userCratesTemplatesDir  string
 	indentLevel             int
+}
+
+func getDefaultShellAbsolutePath(shellName string) string {
+	cmd := &ptywrapper.Command{
+		Entry:   "which",
+		Args:    []string{shellName},
+		Discard: true,
+	}
+
+	completedCmd, err := cmd.RunInPTY()
+	if err != nil {
+		showError(fmt.Sprintf("Failed to get absolute path to default shell '%v' -> %v", shellName, err.Error()), 0)
+
+		space()
+		fmt.Println(completedCmd.Output)
+		space()
+
+		finishProgram(1)
+	}
+	if completedCmd.ExitCode != 0 {
+		showError(fmt.Sprintf("Failed to get absolute path to default shell '%v'", shellName), 0)
+
+		space()
+		fmt.Println(completedCmd.Output)
+		space()
+
+		finishProgram(1)
+	}
+
+	return completedCmd.Output
 }
 
 func initializeDefaultProgram(customUserDataDir string) Program {
@@ -60,7 +91,8 @@ func initializeDefaultProgram(customUserDataDir string) Program {
 	programLongDescription := fmt.Sprintf("%v is a wrapper designed for syncing and managing crate configurations using utilities\nlike unison and rsync via hooks. With a user-friendly structure, users can effortlessly create\nand manage crates that are tailored for specific programs. They can easily set up targets within\nthese crate configurations, allowing for efficient synchronization of data. The program also\noffers the convenience of using templates when creating new crates and targets, ensuring a\nconsistent and streamlined experience. \n\nBearing a name that fuses %v and the scientific concept %v - signifying the shift from\ndisarray to structure, %v aims to manage the mix of your various files and turn them into\na smoothly synchronized collection. It's about evolving from entropy to syntropy, converting the\ndisordered into the organized.", color.HEX("#55ff7f").Sprintf(programName), color.HEX("#ffaa7f").Sprintf("sync"), color.HEX("#ffaa7f").Sprintf("syntropy"), programName)
 
 	// DEFAULT SHELL
-	programDefaultShell := "/usr/bin/sh" // Should work on all Unix systems (Linux, Android, ...)
+	programDefaultShellName := "sh" // Should work on all Unix systems (Linux, Android, ...)
+	programDefaultShellPath := getDefaultShellAbsolutePath(programDefaultShellName)
 
 	// USER DIRECTORIES
 	var userDataDir string
@@ -85,7 +117,7 @@ func initializeDefaultProgram(customUserDataDir string) Program {
 		exec:                    programExec,
 		shortDescription:        programShortDescription,
 		longDescription:         programLongDescription,
-		defaultShell:            programDefaultShell,
+		defaultShell:            programDefaultShellPath,
 		userDataDir:             userDataDir,
 		userCratesDir:           userCratesDir,
 		userTemplatesDir:        userTemplatesDir,
