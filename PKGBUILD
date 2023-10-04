@@ -6,9 +6,24 @@ arch=('any')
 url="https://github.com/fearlessdots/synctropy"
 license=('GPL3')
 depends=('glibc' 'gcc-libs')
-makedepends=('go')
+if [ -v TERMUX_BUILD ]; then
+	msg2 "Building for Termux"
+	makedepends=('golang')
+else
+	makedepends=('go')
+fi
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
+
+get_destination_directory() {
+	# Destination directory
+	if [ -v TERMUX_BUILD ]; then
+		_termux_prefix="/data/data/com.termux/files/usr"
+		_pkgdestdir="${pkgdir}${_termux_prefix}"
+	else
+		_pkgdestdir="${pkgdir}/usr"
+	fi
+}
 
 prepare() {
 	cd "${pkgname}-${pkgver}"
@@ -23,12 +38,16 @@ build() {
 }
 
 package() {
+	msg2 "Getting destination directory"
+	get_destination_directory
+	echo "Destination directory: ${_pkgdestdir}"
+
 	# Create directories for shell autocompletion
 	msg2 "Creating directories for shell autocompletion"
-	mkdir -p ${pkgdir}/usr/share/bash-completion/completions ${pkgdir}/usr/share/zsh/site-functions \
-		${pkgdir}/usr/share/fish/vendor_completions.d
+	mkdir -p ${_pkgdestdir}/share/bash-completion/completions ${_pkgdestdir}/share/zsh/site-functions \
+		${_pkgdestdir}/share/fish/vendor_completions.d
 
 	cd "${pkgname}-${pkgver}"
 	msg2 "Installing binary and program files"
-	make DESTDIR=${pkgdir} install
+	make install DESTDIR=${_pkgdestdir}
 }

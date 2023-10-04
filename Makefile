@@ -1,27 +1,36 @@
+# Destination directory
+ifeq ($(DESTDIR),)
+	# If DESTDIR is not specified, use the default value.
+	_destdir ?= /usr
+else
+	# If DESTDIR was specified, use its value.
+	_destdir ?= ${DESTDIR}
+endif
+
 # Name of the binary to be created
 BINARY_NAME=synctropy
 
 # Path to the directory where the binary will be installed
-INSTALL_PATH=${DESTDIR}/usr/bin
+INSTALL_PATH=${_destdir}/bin
 
 # Documentation output directory
 DOCS_OUT=./docs
-DOCS_PATH=${DESTDIR}/usr/share/doc/${BINARY_NAME}
+DOCS_PATH=${_destdir}/share/doc/${BINARY_NAME}
 
 # Autocompletion files
 AUTOCOMPLETION_OUT=./autocompletion
 
 BASH_AUTOCOMPLETION_FILE=synctropy
-BASH_AUTOCOMPLETION_INSTALL=${DESTDIR}/usr/share/bash-completion/completions
+BASH_AUTOCOMPLETION_INSTALL=${_destdir}/share/bash-completion/completions
 
 ZSH_AUTOCOMPLETION_FILE=_synctropy
-ZSH_AUTOCOMPLETION_INSTALL=${DESTDIR}/usr/share/zsh/site-functions
+ZSH_AUTOCOMPLETION_INSTALL=${_destdir}/share/zsh/site-functions
 
 FISH_AUTOCOMPLETION_FILE=synctropy.fish
-FISH_AUTOCOMPLETION_INSTALL=${DESTDIR}/usr/share/fish/vendor_completions.d
+FISH_AUTOCOMPLETION_INSTALL=${_destdir}/share/fish/vendor_completions.d
 
 # License
-LICENSE_PATH=${DESTDIR}/usr/share/licenses/${BINARY_NAME}
+LICENSE_PATH=${_destdir}/share/licenses/${BINARY_NAME}
 
 # Flags to pass to the go build command
 GO_BUILD_FLAGS=-v
