@@ -47,8 +47,6 @@ Synctropy could also be useful for managing and synchronizing configurations acr
 
 ## Installation
 
-> I have made a PKGBUILD available in this repository, which allows for easy building and installation on Arch Linux.
-
 To build the program, make sure that Go is installed on your system. Clone the repository or download an archive for a specific version and run the following command in the terminal:
 
 ```bash
@@ -78,8 +76,26 @@ make clean
 By default, all files will be installed to their respectives subdirectories under the `/usr` directory in your root filesystem. However, if you want to set a custom destination directory for the installation, you can use the `DESTDIR` variable when running the `make install` command (also valid for `make uninstall`). For example, here's how you could build this program for Termux:
 
 ```bash
-make install DESTDIR=/data/data/com.termux/files
+make install DESTDIR=/data/data/com.termux/files/usr
 ```
+
+### PKGBUILD
+
+To simplify the building and installation process on Arch Linux, a PKGBUILD is available in this repository.
+
+To build the package, run the following command in the terminal:
+```bash
+makepkg -sf
+```
+
+If you want to build a package specifically for Termux when using `pacman` as the package manager instead of the default one (`apt`), use the following command:
+```bash
+TERMUX_BUILD= makepkg -sf
+```
+
+To ensure that the PKGBUILD correctly identifies Termux as the build target and sets the installation destination directory correctly, the `TERMUX_BUILD` environment variable should be set. It doesn't require any specific value; simply setting the variable is sufficient for the PKGBUILD to recognize Termux as the build target and handle the installation directory accordingly.
+
+> For more information on how to switch package managers on Termux, refer to the [Termux Wiki](https://wiki.termux.com/wiki/Switching_package_manager).
 
 ### Initializing User Data Directory
 
