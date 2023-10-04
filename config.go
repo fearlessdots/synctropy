@@ -42,6 +42,8 @@ func getDefaultShellAbsolutePath(shellName string) string {
 
 	output, err := cmd.CombinedOutput()
 	outputString := string(output)
+	outputString = strings.TrimLeft(outputString, "\n")
+	outputString = strings.TrimRight(outputString, "\n")
 
 	if err != nil {
 		showError(fmt.Sprintf("Failed to get absolute path to default shell '%v' -> %v", shellName, outputString), 0)
@@ -77,7 +79,7 @@ func initializeDefaultProgram(customUserDataDir string) Program {
 
 	// DEFAULT SHELL
 	programDefaultShellName := "sh" // Should work on all Unix systems (Linux, Android, ...)
-	//programDefaultShellPath := getDefaultShellAbsolutePath(programDefaultShellName)
+	programDefaultShellPath := getDefaultShellAbsolutePath(programDefaultShellName)
 
 	// USER DIRECTORIES
 	var userDataDir string
@@ -102,7 +104,7 @@ func initializeDefaultProgram(customUserDataDir string) Program {
 		exec:                    programExec,
 		shortDescription:        programShortDescription,
 		longDescription:         programLongDescription,
-		defaultShell:            programDefaultShellName,
+		defaultShell:            programDefaultShellPath,
 		userDataDir:             userDataDir,
 		userCratesDir:           userCratesDir,
 		userTemplatesDir:        userTemplatesDir,
