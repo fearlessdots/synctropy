@@ -20,13 +20,13 @@ DOCS_PATH=${_destdir}/share/doc/${BINARY_NAME}
 # Autocompletion files
 AUTOCOMPLETION_OUT=./autocompletion
 
-BASH_AUTOCOMPLETION_FILE=synctropy
+BASH_AUTOCOMPLETION_FILE=${BINARY_NAME}
 BASH_AUTOCOMPLETION_INSTALL=${_destdir}/share/bash-completion/completions
 
-ZSH_AUTOCOMPLETION_FILE=_synctropy
+ZSH_AUTOCOMPLETION_FILE=_${BINARY_NAME}
 ZSH_AUTOCOMPLETION_INSTALL=${_destdir}/share/zsh/site-functions
 
-FISH_AUTOCOMPLETION_FILE=synctropy.fish
+FISH_AUTOCOMPLETION_FILE=${BINARY_NAME}.fish
 FISH_AUTOCOMPLETION_INSTALL=${_destdir}/share/fish/vendor_completions.d
 
 # License
