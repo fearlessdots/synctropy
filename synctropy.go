@@ -27,7 +27,7 @@ func main() {
 	program = initializeDefaultProgram("")
 
 	var rootCmd = &cobra.Command{
-		Use:   "synctropy [command]",
+		Use:   fmt.Sprintf("%v [command]", program.name),
 		Short: program.shortDescription,
 		Long:  program.shortDescription,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -45,7 +45,7 @@ func main() {
 
 			space()
 
-			showText(fmt.Sprintf("Run %v to get started.", blue.Sprintf("synctropy --help/-h")), program.indentLevel)
+			showText(fmt.Sprintf("Run %v to get started.", blue.Sprintf("%v --help/-h", program.name)), program.indentLevel)
 
 			finishProgram(0)
 		},
