@@ -379,17 +379,27 @@ A custom entry command for a specific hook can be defined by creating a file cal
 ```bash
 /usr/bin/fish
 ```
-
 ##### Managing Hooks
 
-When working with targets, you can use the following subcommands to manage their hooks:
+When working with targets, you have the option to use the following subcommands to manage their hooks:
 
-- `targets hooks ls`: List all hooks available for the specified targets. This command displays the names of the hooks and their associated entry commands (if any).
+- `targets hooks ls`: This command lists all available hooks for the specified targets. It displays the names of the hooks and their associated entry commands (if any).
 
-- `targets hooks run`: Run one or more hooks for the specified targets. You can also run hooks in a specific sequence by running, for example:
+- `targets hooks run`: Use this command to run one or more hooks for the specified targets. You can also specify a specific sequence for the hooks by running the command as follows:
 
 ```bash
 targets hooks run --crate <crate_name> --target <target_name> --hook <first_hook> --hook <second_hook>
+```
+
+Additionally, the `targets hooks run` command allows you to specify an array of crate hooks to be executed before and after running the targets' hooks. You can achieve this using the following two flags:
+
+- `cratepre`: Specifies the hooks to be run before iterating through the targets.
+- `cratepost`: Specifies the hooks to be run after iterating through the targets.
+
+Similar to the `--hooks/-k` flag, you can add multiple flags for both options. The hooks will be executed in the sequence they were specified in the command line. For example, to mimic the operation behind `targets sync`, you can run the following command:
+
+```bash
+targets hooks run --crate <crate_name> --target <target_name> --cratepre pre_transaction --cratepost post_transaction --hook pre_transaction --hook sync --hook post_transaction
 ```
 
 ##### Temporary Directory
