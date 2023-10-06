@@ -1056,7 +1056,7 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 					}
 					handleFunctionResponse(response, false)
 				} else {
-					_, hookResponse := runHook(target.hooksDir+"/"+hook, crate.environment, !notPrintOutput, true, !notPrintEntryCmd, true, !notPrintAlerts, program)
+					_, hookResponse := runHook(target.hooksDir+"/"+hook, target.environment, !notPrintOutput, true, !notPrintEntryCmd, true, !notPrintAlerts, program)
 
 					if hookResponse.exitCode != 0 {
 						hookResponse.indentLevel = program.indentLevel + 1
