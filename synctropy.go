@@ -382,6 +382,9 @@ func main() {
 	var notRemoveTempDir bool
 	var notPrintOutput bool
 
+	var cratePreHooks []string
+	var cratePostHooks []string
+
 	//
 	//// CRATES
 	//
@@ -511,7 +514,7 @@ func main() {
 				response := functionResponse{
 					exitCode:    1,
 					logLevel:    "error",
-					message:     fmt.Sprintf("Flag '--hook' should be specified"),
+					message:     fmt.Sprintf("Flag '--hook/-k' should be specified"),
 					indentLevel: program.indentLevel,
 				}
 				handleFunctionResponse(response, true)
@@ -528,7 +531,7 @@ func main() {
 	cratesHooksRunCmd.Flags().StringSliceVarP(&crateNames, "crate", "c", nil, "Crate(s) name(s)")
 	cratesHooksRunCmd.Flags().BoolVarP(&allCrates, "all", "a", false, "Include all crates")
 	cratesHooksRunCmd.Flags().BoolVarP(&interactiveSelection, "interactive", "i", false, "Interactive selection")
-	cratesHooksRunCmd.Flags().StringSliceVarP(&crateHooksNames, "hook", "", nil, "Hook(s) name(s)")
+	cratesHooksRunCmd.Flags().StringSliceVarP(&crateHooksNames, "hook", "k", nil, "Hook(s) name(s)")
 	cratesHooksRunCmd.Flags().BoolVarP(&notCreateTempDir, "nocreatetemp", "", false, "Do not create the temporary directory before running the hook(s) (by default, it is created)")
 	cratesHooksRunCmd.Flags().BoolVarP(&notRemoveTempDir, "noremovetemp", "", false, "Do not remove the temporary directory after the hook(s) has/have finished running (by default, it is removed)")
 	cratesHooksRunCmd.Flags().BoolVarP(&notPrintOutput, "quiet", "q", false, "Do not print command output (silent)")
@@ -728,7 +731,7 @@ func main() {
 				response := functionResponse{
 					exitCode:    1,
 					logLevel:    "error",
-					message:     fmt.Sprintf("Flag '--hook' should be specified"),
+					message:     fmt.Sprintf("Flag '--hook/-k' should be specified"),
 					indentLevel: program.indentLevel,
 				}
 				handleFunctionResponse(response, true)
@@ -737,7 +740,7 @@ func main() {
 			crate, selectedTargets, response := getSelectedTargetsFromCLI(crateName, targetNames, allTargets, interactiveSelection, true, program)
 			handleFunctionResponse(response, true)
 
-			response = targetsRunHooks(crate, selectedTargets, targetHooksNames, notCreateTempDir, notRemoveTempDir, notPrintOutput, false, true, program)
+			response = targetsRunHooks(crate, selectedTargets, targetHooksNames, cratePreHooks, cratePostHooks, notCreateTempDir, notRemoveTempDir, notPrintOutput, false, true, program)
 			handleFunctionResponse(response, true)
 		},
 	}
@@ -746,9 +749,11 @@ func main() {
 	targetsHooksRunCmd.Flags().StringSliceVarP(&targetNames, "target", "t", nil, "Target(s) name(s)")
 	targetsHooksRunCmd.Flags().BoolVarP(&allTargets, "all", "a", false, "Include all targets")
 	targetsHooksRunCmd.Flags().BoolVarP(&interactiveSelection, "interactive", "i", false, "Interactive selection")
-	targetsHooksRunCmd.Flags().StringSliceVarP(&targetHooksNames, "hook", "", nil, "Hook(s) name(s)")
+	targetsHooksRunCmd.Flags().StringSliceVarP(&targetHooksNames, "hook", "k", nil, "Hook(s) name(s)")
 	targetsHooksRunCmd.Flags().BoolVarP(&notCreateTempDir, "nocreatetemp", "", false, "Do not create the temporary directory before running the hook(s) (by default, it is created)")
 	targetsHooksRunCmd.Flags().BoolVarP(&notRemoveTempDir, "noremovetemp", "n", false, "Do not remove the temporary directory after the hook(s) has/have finished running (by default, it is removed)")
+	targetsHooksRunCmd.Flags().StringSliceVarP(&cratePreHooks, "cratepre", "", nil, "Crate pre hook(s)")
+	targetsHooksRunCmd.Flags().StringSliceVarP(&cratePostHooks, "cratepost", "", nil, "Crate post hook(s)")
 	targetsHooksRunCmd.Flags().BoolVarP(&notPrintOutput, "quiet", "q", false, "Do not print command output (silent)")
 	targetsHooksRunCmd.Flags().SetInterspersed(false)
 

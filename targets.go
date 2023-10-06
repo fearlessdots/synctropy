@@ -834,14 +834,14 @@ func targetsLs(crates []Crate, program Program) functionResponse {
 
 func targetsEdit(crate Crate, targets []Target, program Program) functionResponse {
 	hook := "edit"
-	response := targetsRunHooks(crate, targets, []string{hook}, false, false, false, false, false, program)
+	response := targetsRunHooks(crate, targets, []string{hook}, []string{}, []string{}, false, false, false, false, false, program)
 
 	return response
 }
 
 func targetsView(crate Crate, targets []Target, program Program) functionResponse {
 	hook := "view"
-	response := targetsRunHooks(crate, targets, []string{hook}, false, false, false, false, false, program)
+	response := targetsRunHooks(crate, targets, []string{hook}, []string{}, []string{}, false, false, false, false, false, program)
 
 	return response
 }
@@ -989,10 +989,42 @@ func targetsSync(crate Crate, targets []Target, program Program) functionRespons
 	}
 }
 
-func targetsRunHooks(crate Crate, targets []Target, hooks []string, notCreateTempDir bool, notRemoveTempDir bool, notPrintOutput bool, notPrintEntryCmd bool, notPrintAlerts bool, program Program) functionResponse {
+func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHooks []string, cratePostHooks []string, notCreateTempDir bool, notRemoveTempDir bool, notPrintOutput bool, notPrintEntryCmd bool, notPrintAlerts bool, program Program) functionResponse {
 	var response functionResponse
 
 	setupCrateTempDirectory(crate, true, notCreateTempDir, program)
+
+	space()
+
+	for _, hook := range cratePreHooks {
+		showInfoSectionTitle(displayCrateTag(lightGray.Sprintf("Running ")+orange.Sprintf(hook)+lightGray.Sprintf(" hook"), crate), program.indentLevel)
+
+		if _, err := os.Stat(crate.hooksDir + "/" + hook); os.IsNotExist(err) {
+			response = functionResponse{
+				exitCode:    1,
+				message:     "Hook not found",
+				logLevel:    "error",
+				indentLevel: program.indentLevel + 1,
+			}
+			handleFunctionResponse(response, true)
+		} else {
+			_, response := runHook(crate.hooksDir+"/"+hook, crate.environment, true, true, true, true, true, program)
+			response.indentLevel = program.indentLevel + 1
+
+			handleFunctionResponse(response, false)
+
+			if response.exitCode != 0 {
+				space()
+				removeCrateTempDirectory(crate, true, false, program)
+
+				space()
+
+				finishProgram(response.exitCode)
+			}
+		}
+
+		space()
+	}
 
 	space()
 
@@ -1024,7 +1056,7 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, notCreateTem
 					}
 					handleFunctionResponse(response, false)
 				} else {
-					_, hookResponse := runHook(target.hooksDir+"/"+hook, target.environment, !notPrintOutput, true, !notPrintEntryCmd, true, !notPrintAlerts, program)
+					_, hookResponse := runHook(target.hooksDir+"/"+hook, crate.environment, !notPrintOutput, true, !notPrintEntryCmd, true, !notPrintAlerts, program)
 
 					if hookResponse.exitCode != 0 {
 						hookResponse.indentLevel = program.indentLevel + 1
@@ -1042,7 +1074,7 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, notCreateTem
 			}
 
 			return functionResponse{
-				exitCode: 0,
+				exitCode: response.exitCode,
 			}
 		}(crate, target, hooks, notRemoveTempDir, notPrintOutput, notPrintEntryCmd, program)
 
@@ -1069,12 +1101,45 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, notCreateTem
 
 		removeTargetTempDirectory(target, notRemoveTempDir, program)
 
-		space()
-
-		removeCrateTempDirectory(crate, true, notRemoveTempDir, decrementProgramIndentLevel(program, 1))
-
 		program = decrementProgramIndentLevel(program, 1)
 	}
+
+	space()
+
+	for _, hook := range cratePostHooks {
+		space()
+
+		showInfoSectionTitle(displayCrateTag(lightGray.Sprintf("Running ")+orange.Sprintf(hook)+lightGray.Sprintf(" hook"), crate), program.indentLevel)
+
+		if _, err := os.Stat(crate.hooksDir + "/" + hook); os.IsNotExist(err) {
+			response = functionResponse{
+				exitCode:    1,
+				message:     "Hook not found",
+				logLevel:    "error",
+				indentLevel: program.indentLevel + 1,
+			}
+			handleFunctionResponse(response, true)
+		} else {
+			_, response := runHook(crate.hooksDir+"/"+hook, crate.environment, true, true, true, true, true, program)
+			response.indentLevel = program.indentLevel + 1
+
+			handleFunctionResponse(response, false)
+
+			if response.exitCode != 0 {
+				space()
+				removeCrateTempDirectory(crate, true, false, program)
+
+				space()
+
+				finishProgram(response.exitCode)
+			}
+		}
+
+	}
+
+	space()
+
+	removeCrateTempDirectory(crate, true, notRemoveTempDir, program)
 
 	return functionResponse{
 		exitCode: 0,

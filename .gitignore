@@ -7,3 +7,4 @@ go.sum
 synctropy
 .kateproject
 *.kate-swp
+*.unison_backup
