@@ -963,7 +963,6 @@ func targetsSync(crate Crate, targets []Target, program Program) functionRespons
 	// Run post_transaction hook for crate (if any)
 	space()
 	space()
-	space()
 
 	showText(lightGray.Sprintf("Running post_transaction hook")+lightGray.Sprintf(" (")+salmonPink.Sprintf(crate.name+lightGray.Sprintf(")")), program.indentLevel)
 	if _, err := os.Stat(crate.hooksDir + "/post_transaction"); os.IsNotExist(err) {
