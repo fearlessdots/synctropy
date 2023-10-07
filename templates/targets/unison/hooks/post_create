@@ -6,44 +6,35 @@ set -e
 #
 
 # Get crate configuration
-crateName=$(cat ${CRATE_DIR}/config.json | jq -r '.name')
-if ! [ $? = 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file."
-	exit 1
-fi
-crateDescription=$(cat ${CRATE_DIR}/config.json | jq -r '.description')
-if ! [ $? = 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file."
-	exit 1
-fi
-crateProtocol=$(cat ${CRATE_DIR}/config.json | jq -r '.protocol')
-if ! [ $? = 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file."
-	exit 1
-fi
-crateHost=$(cat ${CRATE_DIR}/config.json | jq -r '.host')
-if ! [ $? = 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file."
-	exit 1
-fi
+crateName=$(cat ${CRATE_DIR}/config.json | jq -r '.name') || \
+	(${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file." && \
+	exit 1)
+
+crateDescription=$(cat ${CRATE_DIR}/config.json | jq -r '.description') || \
+	(${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file." && \
+	exit 1)
+
+crateProtocol=$(cat ${CRATE_DIR}/config.json | jq -r '.protocol') || \
+	(${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file." && \
+	exit 1)
+
+crateHost=$(cat ${CRATE_DIR}/config.json | jq -r '.host') || \
+	(${SYNCTROPY_UTILS} error "Failed to read/parse crate configuration file." && \
+	exit 1)
 
 # Get target configuration from user input
 targetName=${TARGET_NAME}
-targetDescription=$(gum input --prompt "> Target description -> " --cursor.mode "blink" --value "")
-if [ $? -ne 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to get user input"
-	exit 1
-fi
-targetPrimaryDirectory=$(gum input --prompt "> Primary directory (e.g., local) -> " --cursor.mode "blink" --value "")
-if [ $? -ne 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to get user input"
-	exit 1
-fi
-targetSecondaryDirectory=$(gum input --prompt "> Secondary directory (e.g., remote) -> " --cursor.mode "blink" --value "")
-if [ $? -ne 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to get user input"
-	exit 1
-fi
+targetDescription=$(gum input --prompt "> Target description -> " --cursor.mode "blink" --value "") || \
+	(${SYNCTROPY_UTILS} error "Failed to get user input" && \
+	exit 1)
+
+targetPrimaryDirectory=$(gum input --prompt "> Primary directory (e.g., local) -> " --cursor.mode "blink" --value "") || \
+	(${SYNCTROPY_UTILS} error "Failed to get user input" && \
+	exit 1)
+
+targetSecondaryDirectory=$(gum input --prompt "> Secondary directory (e.g., remote) -> " --cursor.mode "blink" --value "") || \
+	(${SYNCTROPY_UTILS} error "Failed to get user input" && \
+	exit 1)
 
 # Display configuration and ask for user confirmation
 echo ""

@@ -7,30 +7,24 @@ set -e
 
 # Get crate configuration from user input
 crateName=${CRATE_NAME}
-crateDescription=$(gum input --prompt "> Crate description -> " --cursor.mode "blink" --value "")
-if [ $? -ne 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to get user input"
-	exit 1
-fi
-crateProtocol=$(gum input --prompt "> Protocol (default: ssh) -> " --cursor.mode "blink" --value "ssh")
-if [ $? -ne 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to get user input"
-	exit 1
-fi
-crateHost=$(gum input --prompt "> Host -> " --cursor.mode "blink" --value "")
-if [ $? -ne 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to get user input"
-	exit 1
-fi
+crateDescription=$(gum input --prompt "> Crate description -> " --cursor.mode "blink" --value "") || \
+	(${SYNCTROPY_UTILS} error "Failed to get user input" && \
+	exit 1)
+
+crateProtocol=$(gum input --prompt "> Protocol (default: ssh) -> " --cursor.mode "blink" --value "ssh") || \
+	(${SYNCTROPY_UTILS} error "Failed to get user input" && \
+	exit 1)
+
+crateHost=$(gum input --prompt "> Host -> " --cursor.mode "blink" --value "") || \
+	(${SYNCTROPY_UTILS} error "Failed to get user input" && \
+	exit 1)
 
 # Verify if crate will use the SSH protocol
 if [ "${crateProtocol}" = "ssh" ]; then
 	crateSSHEnabled=true
-	crateSSHKeyPath=$(gum input --prompt "> SSH key path -> " --cursor.mode "blink" --value "${HOME}/.ssh/")
-	if [ $? -ne 0 ]; then
-		${SYNCTROPY_UTILS} error "Failed to get user input"
-		exit 1
-	fi
+	crateSSHKeyPath=$(gum input --prompt "> SSH key path -> " --cursor.mode "blink" --value "${HOME}/.ssh/") || \
+		(${SYNCTROPY_UTILS} error "Failed to get user input" && \
+		exit 1)
 else
 	crateSSHEnabled=false
 	crateSSHKeyPath=""
@@ -79,10 +73,8 @@ jsonContent=$(jq -n \
 }')
 
 # Write content to configuration file
-echo "${jsonContent}" > ${CRATE_DIR}/config.json
-if [ $? -ne 0 ]; then
-	${SYNCTROPY_UTILS} error "Failed to write to configuration file"
-	exit 1
-fi
+echo "${jsonContent}" > ${CRATE_DIR}/config.json || \
+	(${SYNCTROPY_UTILS} error "Failed to write to configuration file" && \
+	exit 1)
 
 exit 0
