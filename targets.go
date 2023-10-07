@@ -849,6 +849,8 @@ func targetsView(crate Crate, targets []Target, program Program) functionRespons
 func targetsSync(crate Crate, targets []Target, program Program) functionResponse {
 	var response functionResponse
 
+	space()
+
 	setupCrateTempDirectory(crate, true, false, program)
 
 	// Run pre_transaction hook for crate (if any)
