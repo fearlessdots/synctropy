@@ -772,6 +772,8 @@ func cratesRunHooks(crates []Crate, hooks []string, notCreateTempDir bool, notRe
 		removeCrateTempDirectory(crate, false, notRemoveTempDir, program)
 
 		program = decrementProgramIndentLevel(program, 1)
+
+		space()
 	}
 
 	return functionResponse{

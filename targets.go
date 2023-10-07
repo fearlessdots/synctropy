@@ -994,6 +994,7 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 	setupCrateTempDirectory(crate, true, notCreateTempDir, program)
 
 	space()
+	space()
 
 	for _, hook := range cratePreHooks {
 		showInfoSectionTitle(displayCrateTag(lightGray.Sprintf("Running ")+orange.Sprintf(hook)+lightGray.Sprintf(" hook"), crate), program.indentLevel)
@@ -1023,11 +1024,10 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 		}
 
 		space()
+		space()
 	}
 
-	for index, target := range targets {
-		space()
-		
+	for index, target := range targets {		
 		orange.Println(fmt.Sprintf("(%v/%v)", index+1, len(targets)))
 
 		showInfoSectionTitle(displayTargetTag("Running hook(s)", target), program.indentLevel)
@@ -1101,13 +1101,12 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 		removeTargetTempDirectory(target, notRemoveTempDir, program)
 
 		program = decrementProgramIndentLevel(program, 1)
+
+		space()
+		space()
 	}
 
-	space()
-
 	for _, hook := range cratePostHooks {
-		space()
-
 		showInfoSectionTitle(displayCrateTag(lightGray.Sprintf("Running ")+orange.Sprintf(hook)+lightGray.Sprintf(" hook"), crate), program.indentLevel)
 
 		if _, err := os.Stat(crate.hooksDir + "/" + hook); os.IsNotExist(err) {
@@ -1134,9 +1133,8 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 			}
 		}
 
+		space()
 	}
-
-	space()
 
 	removeCrateTempDirectory(crate, true, notRemoveTempDir, program)
 
