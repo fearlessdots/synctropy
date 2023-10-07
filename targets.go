@@ -878,13 +878,12 @@ func targetsSync(crate Crate, targets []Target, program Program) functionRespons
 		}
 	}
 
-	space()
-
 	response = func(targets []Target, program Program) functionResponse {
-		for _, target := range targets {
+		for index, target := range targets {
 			space()
 			space()
 
+			orange.Println(fmt.Sprintf("(%v/%v)", index+1, len(targets)))
 			showInfoSectionTitle(lightGray.Sprintf("Syncing")+lightGray.Sprintf(" (")+salmonPink.Sprintf(target.crate.name)+"/"+green.Sprintf(target.name)+lightGray.Sprintf(")"), program.indentLevel)
 
 			isTargetDisabled, response := isTargetDisabled(target, program)
@@ -1026,9 +1025,9 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 		space()
 	}
 
-	space()
-
 	for index, target := range targets {
+		space()
+		
 		orange.Println(fmt.Sprintf("(%v/%v)", index+1, len(targets)))
 
 		showInfoSectionTitle(displayTargetTag("Running hook(s)", target), program.indentLevel)
