@@ -400,6 +400,7 @@ func main() {
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if userDataDir != "" {
 				showAttention(fmt.Sprintf("Running %v using a custom user data directory: %v", program.name, userDataDir), program.indentLevel)
+
 				space()
 
 				program = initializeDefaultProgram(userDataDir)
@@ -408,8 +409,6 @@ func main() {
 			// Verify user data directory
 			response := verifyUserDataDirectory(true, program)
 			handleFunctionResponse(response, true)
-
-			space()
 
 			return nil
 		},
@@ -559,8 +558,6 @@ func main() {
 			// Verify user data directory
 			response := verifyUserDataDirectory(true, program)
 			handleFunctionResponse(response, true)
-
-			space()
 
 			return nil
 		},

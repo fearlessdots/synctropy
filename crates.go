@@ -704,6 +704,7 @@ func cratesRunHooks(crates []Crate, hooks []string, notCreateTempDir bool, notRe
 
 	for index, crate := range crates {
 		space()
+		space()
 
 		orange.Println(fmt.Sprintf("(%v/%v)", index+1, len(crates)))
 
@@ -772,8 +773,6 @@ func cratesRunHooks(crates []Crate, hooks []string, notCreateTempDir bool, notRe
 		removeCrateTempDirectory(crate, false, notRemoveTempDir, program)
 
 		program = decrementProgramIndentLevel(program, 1)
-
-		space()
 	}
 
 	return functionResponse{
