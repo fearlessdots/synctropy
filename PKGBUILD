@@ -8,9 +8,9 @@ license=('GPL3')
 depends=('glibc' 'gcc-libs')
 if [ -v TERMUX_BUILD ]; then
 	msg2 "Building for Termux"
-	makedepends=('golang')
+	makedepends=('golang' 'which')
 else
-	makedepends=('go')
+	makedepends=('go' 'which')
 fi
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
