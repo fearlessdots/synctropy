@@ -5,12 +5,12 @@ pkgdesc="A wrapper for management and syncing of crates via syncing utilities li
 arch=('any')
 url="https://github.com/fearlessdots/synctropy"
 license=('GPL3')
-depends=('glibc' 'gcc-libs')
+depends=('glibc' 'gcc-libs' 'which')
 if [ -v TERMUX_BUILD ]; then
 	msg2 "Building for Termux"
-	makedepends=('golang' 'which')
+	makedepends=('golang')
 else
-	makedepends=('go' 'which')
+	makedepends=('go')
 fi
 source=("${pkgname}-${pkgver}.tar.gz::${url}/archive/refs/tags/v${pkgver}.tar.gz")
 sha256sums=('SKIP')
