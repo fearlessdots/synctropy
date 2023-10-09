@@ -448,6 +448,40 @@ func main() {
 	cratesViewCmd.Flags().BoolVarP(&interactiveSelection, "interactive", "i", false, "Interactive selection")
 	cratesViewCmd.Flags().SetInterspersed(false)
 
+	var cratesEnableCmd = &cobra.Command{
+		Use:   "enable",
+		Short: "Enable crates",
+		Run: func(cmd *cobra.Command, args []string) {
+			selectedCrates, response := getSelectedCratesFromCLI(crateNames, allCrates, interactiveSelection, true, program)
+			handleFunctionResponse(response, true)
+
+			response = cratesEnable(selectedCrates, program)
+			handleFunctionResponse(response, true)
+		},
+	}
+
+	cratesEnableCmd.Flags().StringVarP(&crateName, "crate", "c", "", "Crate name")
+	cratesEnableCmd.Flags().BoolVarP(&allCrates, "all", "a", false, "Include all crates")
+	cratesEnableCmd.Flags().BoolVarP(&interactiveSelection, "interactive", "i", false, "Interactive selection")
+	cratesEnableCmd.Flags().SetInterspersed(false)
+
+	var cratesDisableCmd = &cobra.Command{
+		Use:   "disable",
+		Short: "Disable crates",
+		Run: func(cmd *cobra.Command, args []string) {
+			selectedCrates, response := getSelectedCratesFromCLI(crateNames, allCrates, interactiveSelection, true, program)
+			handleFunctionResponse(response, true)
+
+			response = cratesDisable(selectedCrates, program)
+			handleFunctionResponse(response, true)
+		},
+	}
+
+	cratesDisableCmd.Flags().StringVarP(&crateName, "crate", "c", "", "Crate name")
+	cratesDisableCmd.Flags().BoolVarP(&allCrates, "all", "a", false, "Include all crates")
+	cratesDisableCmd.Flags().BoolVarP(&interactiveSelection, "interactive", "i", false, "Interactive selection")
+	cratesDisableCmd.Flags().SetInterspersed(false)
+
 	var cratesCreateCmd = &cobra.Command{
 		Use:   "create",
 		Short: "Create crates",
@@ -783,6 +817,8 @@ func main() {
 	cratesCmd.AddCommand(cratesEditCmd)
 	cratesCmd.AddCommand(cratesViewCmd)
 	cratesCmd.AddCommand(cratesCreateCmd)
+	cratesCmd.AddCommand(cratesEnableCmd)
+	cratesCmd.AddCommand(cratesDisableCmd)
 	cratesCmd.AddCommand(cratesRmCmd)
 	cratesCmd.AddCommand(cratesLsCmd)
 	cratesCmd.AddCommand(cratesHooksCmd)

@@ -815,15 +815,24 @@ func targetsLs(crates []Crate, program Program) functionResponse {
 			targetDescription, response := runHook(target.hooksDir+"/ls", target.environment, false, false, false, false, false, program)
 			targetDescriptionString := targetDescription.Output
 
+			var description string
+
 			if response.exitCode == 0 {
 				if len(targetDescriptionString) > 0 {
-					showText(fmt.Sprintf("- %s (%s)", target.name, blue.Sprintf(targetDescriptionString)), program.indentLevel+1)
+					description = fmt.Sprintf("(%s) ", blue.Sprintf(targetDescriptionString))
 				} else {
-					showText(fmt.Sprintf("- %s", target.name), program.indentLevel+1)
+					description = ""
 				}
-			} else {
-				showText(fmt.Sprintf("- %s", target.name), program.indentLevel+1)
 			}
+
+			isTargetDisabled, response := isTargetDisabled(target, program)
+			handleFunctionResponse(response, true)
+
+			if isTargetDisabled == true {
+				description += fmt.Sprintf("[%s]", red.Sprintf("disabled"))
+			}
+
+			showText(fmt.Sprintf(" - %s %s", target.name, description), program.indentLevel+1)
 		}
 	}
 
@@ -850,6 +859,23 @@ func targetsSync(crate Crate, targets []Target, program Program) functionRespons
 	var response functionResponse
 
 	space()
+
+	isCrateDisabled, response := isCrateDisabled(crate, program)
+	if response.exitCode != 0 {
+		response.indentLevel = program.indentLevel + 1
+
+		return response
+	}
+
+	if isCrateDisabled == true {
+		response = functionResponse{
+			exitCode:    0,
+			message:     "Crate is disabled",
+			logLevel:    "attention",
+			indentLevel: program.indentLevel,
+		}
+		return response
+	}
 
 	setupCrateTempDirectory(crate, true, false, program)
 
@@ -992,6 +1018,25 @@ func targetsSync(crate Crate, targets []Target, program Program) functionRespons
 func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHooks []string, cratePostHooks []string, notCreateTempDir bool, notRemoveTempDir bool, notPrintOutput bool, notPrintEntryCmd bool, notPrintAlerts bool, program Program) functionResponse {
 	var response functionResponse
 
+	isCrateDisabled, response := isCrateDisabled(crate, program)
+	if response.exitCode != 0 {
+		response.indentLevel = program.indentLevel + 1
+
+		return response
+	}
+
+	if isCrateDisabled == true {
+		space()
+
+		response = functionResponse{
+			exitCode:    0,
+			message:     "Crate is disabled",
+			logLevel:    "attention",
+			indentLevel: program.indentLevel,
+		}
+		return response
+	}
+
 	setupCrateTempDirectory(crate, true, notCreateTempDir, program)
 
 	space()
@@ -1028,7 +1073,7 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 		space()
 	}
 
-	for index, target := range targets {		
+	for index, target := range targets {
 		orange.Println(fmt.Sprintf("(%v/%v)", index+1, len(targets)))
 
 		showInfoSectionTitle(displayTargetTag("Running hook(s)", target), program.indentLevel)

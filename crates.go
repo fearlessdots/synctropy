@@ -21,12 +21,13 @@ import (
 //
 
 type Crate struct {
-	name        string
-	path        string
-	hooksDir    string
-	targetsDir  string
-	tempDir     string
-	environment map[string]string
+	name         string
+	path         string
+	hooksDir     string
+	targetsDir   string
+	tempDir      string
+	disabledPath string
+	environment  map[string]string
 }
 
 func getSelectedCratesFromCLI(crateNames []string, allCrates bool, interactiveSelection bool, multiple bool, program Program) ([]Crate, functionResponse) {
@@ -177,12 +178,138 @@ func generateCrateObj(crate string, program Program) Crate {
 	}
 
 	return Crate{
-		name:        crate,
-		path:        program.userCratesDir + "/" + crate,
-		hooksDir:    program.userCratesDir + "/" + crate + "/hooks",
-		targetsDir:  program.userCratesDir + "/" + crate + "/targets",
-		tempDir:     program.userCratesDir + "/" + crate + "/.tmp",
-		environment: defaultCrateEnv,
+		name:         crate,
+		path:         program.userCratesDir + "/" + crate,
+		hooksDir:     program.userCratesDir + "/" + crate + "/hooks",
+		targetsDir:   program.userCratesDir + "/" + crate + "/targets",
+		tempDir:      program.userCratesDir + "/" + crate + "/.tmp",
+		disabledPath: program.userCratesDir + "/" + crate + "/disabled",
+		environment:  defaultCrateEnv,
+	}
+}
+
+func isCrateDisabled(crate Crate, program Program) (bool, functionResponse) {
+	if _, err := os.Stat(crate.disabledPath); os.IsNotExist(err) {
+		return false, functionResponse{
+			exitCode:    0,
+			indentLevel: program.indentLevel + 1,
+		}
+	} else if err != nil {
+		return false, functionResponse{
+			exitCode:    1,
+			message:     "Failed to verify if crate is disabled -> " + err.Error(),
+			logLevel:    "error",
+			indentLevel: program.indentLevel + 1,
+		}
+	} else {
+		return true, functionResponse{
+			exitCode: 0,
+		}
+	}
+}
+
+func enableCrate(crate Crate, program Program) functionResponse {
+	if _, err := os.Stat(crate.disabledPath); os.IsNotExist(err) {
+		return functionResponse{
+			exitCode:    0,
+			message:     "Crate already enabled",
+			logLevel:    "attention",
+			indentLevel: program.indentLevel + 1,
+		}
+	} else if err != nil {
+		return functionResponse{
+			exitCode:    1,
+			message:     "Failed to verify if crate is disabled -> " + err.Error(),
+			logLevel:    "error",
+			indentLevel: program.indentLevel + 1,
+		}
+	} else {
+		err = os.Remove(crate.disabledPath)
+		if err != nil {
+			return functionResponse{
+				exitCode:    1,
+				message:     "Failed to remove disabled lock file -> " + err.Error(),
+				logLevel:    "error",
+				indentLevel: program.indentLevel + 1,
+			}
+		} else {
+			return functionResponse{
+				exitCode:    0,
+				message:     "Finished",
+				logLevel:    "success",
+				indentLevel: program.indentLevel + 1,
+			}
+		}
+	}
+}
+
+func cratesEnable(crates []Crate, program Program) functionResponse {
+	for _, crate := range crates {
+		space()
+		showInfoSectionTitle(displayCrateTag("Enabling", crate), program.indentLevel)
+
+		response := enableCrate(crate, program)
+		if response.exitCode != 0 {
+			return response
+		}
+		handleFunctionResponse(response, false)
+	}
+
+	return functionResponse{
+		exitCode: 0,
+	}
+}
+
+func disableCrate(crate Crate, program Program) functionResponse {
+	if _, err := os.Stat(crate.disabledPath); os.IsNotExist(err) {
+		file, err := os.Create(crate.disabledPath)
+		defer file.Close()
+		if err != nil {
+			return functionResponse{
+				exitCode:    1,
+				message:     "Failed to create disabled lock file -> " + err.Error(),
+				logLevel:    "error",
+				indentLevel: program.indentLevel + 1,
+			}
+		} else {
+			return functionResponse{
+				exitCode:    0,
+				message:     "Finished",
+				logLevel:    "success",
+				indentLevel: program.indentLevel + 1,
+			}
+		}
+	} else if err != nil {
+		return functionResponse{
+			exitCode:    1,
+			message:     "Failed to verify if crate is enabled -> " + err.Error(),
+			logLevel:    "error",
+			indentLevel: program.indentLevel + 1,
+		}
+	} else {
+		return functionResponse{
+			exitCode:    0,
+			message:     "Crate already disabled",
+			logLevel:    "attention",
+			indentLevel: program.indentLevel + 1,
+		}
+	}
+}
+
+func cratesDisable(crates []Crate, program Program) functionResponse {
+	for _, crate := range crates {
+		space()
+		showInfoSectionTitle(displayCrateTag("Disabling", crate), program.indentLevel)
+
+		response := disableCrate(crate, program)
+		if response.exitCode != 0 {
+			return response
+		}
+		handleFunctionResponse(response, false)
+	}
+
+	return functionResponse{
+		exitCode: 0,
 	}
 }
 
@@ -669,15 +796,24 @@ func cratesLs(program Program) functionResponse {
 		crateDescription, response := runHook(crate.hooksDir+"/ls", crate.environment, false, false, false, false, false, program)
 		crateDescriptionString := crateDescription.Output
 
+		var description string
+
 		if response.exitCode == 0 {
 			if len(crateDescriptionString) > 0 {
-				showText(fmt.Sprintf("- %s (%s)", crate.name, blue.Sprintf(crateDescriptionString)), program.indentLevel+1)
+				description = fmt.Sprintf("(%s) ", blue.Sprintf(crateDescriptionString))
 			} else {
-				showText(fmt.Sprintf("- %s", crate.name), program.indentLevel+1)
+				description = ""
 			}
-		} else {
-			showText(fmt.Sprintf("- %s", crate.name), program.indentLevel+1)
 		}
+
+		isCrateDisabled, response := isCrateDisabled(crate, program)
+		handleFunctionResponse(response, true)
+
+		if isCrateDisabled == true {
+			description += fmt.Sprintf("[%s]", red.Sprintf("disabled"))
+		}
+
+		showText(fmt.Sprintf(" - %s %s", crate.name, description), program.indentLevel+1)
 	}
 
 	return functionResponse{
@@ -700,8 +836,6 @@ func cratesView(crates []Crate, program Program) functionResponse {
 }
 
 func cratesRunHooks(crates []Crate, hooks []string, notCreateTempDir bool, notRemoveTempDir bool, notPrintOutput bool, notPrintEntryCmd bool, notPrintAlerts bool, program Program) functionResponse {
-	var response functionResponse
-
 	for index, crate := range crates {
 		space()
 		space()
@@ -709,6 +843,25 @@ func cratesRunHooks(crates []Crate, hooks []string, notCreateTempDir bool, notRe
 		orange.Println(fmt.Sprintf("(%v/%v)", index+1, len(crates)))
 
 		showInfoSectionTitle(displayCrateTag("Running hook(s)", crate), program.indentLevel)
+
+		isCrateDisabled, response := isCrateDisabled(crate, program)
+		if response.exitCode != 0 {
+			response.indentLevel = program.indentLevel + 1
+
+			return response
+		}
+
+		if isCrateDisabled == true {
+			response = functionResponse{
+				exitCode:    0,
+				message:     "Crate is disabled",
+				logLevel:    "attention",
+				indentLevel: program.indentLevel + 1,
+			}
+			handleFunctionResponse(response, false)
+
+			continue
+		}
 
 		program = incrementProgramIndentLevel(program, 1)
 
