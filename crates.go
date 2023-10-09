@@ -884,7 +884,7 @@ func cratesRunHooks(crates []Crate, hooks []string, notCreateTempDir bool, notRe
 					}
 					handleFunctionResponse(response, false)
 				} else {
-					_, hookResponse := runHook(crate.hooksDir+"/"+hook, crate.environment, !notPrintOutput, true, !notPrintEntryCmd, true, !notPrintAlerts, program)
+					_, hookResponse := runHook(crate.hooksDir+"/"+hook, crate.environment, !notPrintOutput, true, true, !notPrintEntryCmd, true, program)
 
 					if hookResponse.exitCode != 0 {
 						hookResponse.indentLevel = program.indentLevel + 1

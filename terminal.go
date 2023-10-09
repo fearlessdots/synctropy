@@ -132,8 +132,8 @@ func runHook(hookPath string, env map[string]string, printOutput bool, printFini
 		showInfoSectionTitle(fmt.Sprintf("Entry command: %s", paleLime.Sprintf(entryCommand)), program.indentLevel+1)
 	}
 
-	if !printOutput && printAlerts == true {
-		showAttention("> The command will run silently. Interactive commands may not function properly. If necessary, press Ctrl+C or use the program-specific shortcut to quit.", program.indentLevel+1)
+	if printOutput == false && printAlerts == true {
+		showText(gray.Sprintf("> The command will run silently. Interactive commands may not function properly. If necessary, press Ctrl+C or use the program-specific shortcut to quit."), program.indentLevel+1)
 	}
 
 	cmd := &ptywrapper.Command{

@@ -1054,7 +1054,7 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 			}
 			handleFunctionResponse(response, true)
 		} else {
-			_, response := runHook(crate.hooksDir+"/"+hook, crate.environment, true, true, true, true, true, program)
+			_, response := runHook(crate.hooksDir+"/"+hook, crate.environment, !notPrintOutput, true, true, !notPrintEntryCmd, true, program)
 			response.indentLevel = program.indentLevel + 1
 
 			handleFunctionResponse(response, false)
@@ -1123,7 +1123,7 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 					}
 					handleFunctionResponse(response, false)
 				} else {
-					_, hookResponse := runHook(target.hooksDir+"/"+hook, target.environment, !notPrintOutput, true, !notPrintEntryCmd, true, !notPrintAlerts, program)
+					_, hookResponse := runHook(target.hooksDir+"/"+hook, target.environment, !notPrintOutput, true, true, !notPrintEntryCmd, true, program)
 
 					if hookResponse.exitCode != 0 {
 						hookResponse.indentLevel = program.indentLevel + 1
@@ -1186,7 +1186,7 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 			}
 			handleFunctionResponse(response, true)
 		} else {
-			_, response := runHook(crate.hooksDir+"/"+hook, crate.environment, true, true, true, true, true, program)
+			_, response := runHook(crate.hooksDir+"/"+hook, crate.environment, !notPrintOutput, true, true, !notPrintEntryCmd, true, program)
 			response.indentLevel = program.indentLevel + 1
 
 			handleFunctionResponse(response, false)
