@@ -173,6 +173,8 @@ synctropy docs generate -o <output_dir>
   - crates: Manage crates.
     - edit: Edit crates.
     - view: View crates.
+    - enable: Enable crates.
+    - disable: Disable crates.
     - create: Create crates.
     - rm: Remove crates.
     - ls: List crates.
@@ -238,9 +240,16 @@ Once you have created crates, you can perform various operations on them. The fo
 - `crates view`: View crates.
 - `crates rm`: Remove crates.
 - `crates ls`: List crates.
+- `crates enable`: Enable crates.
+- `crates disable`: Disable crates.
 - `crates hooks`: Manage crate hooks.
  - `crates hooks run`: Run crate hook(s).
  - `crates hooks ls`: List crate hooks.
+
+
+#### Disabled Crates
+
+When executing the `crates hooks run` command or other commands that depends on hooks to function (like `crates edit` and `crates view`), `synctropy` will check if the crate is disabled before running hooks for each crate. If any disabled crates are encountered, `synctropy` will skip them without generating an error. It will proceed to the remaining selected crates, if any are available.
 
 #### Hooks
 
@@ -332,7 +341,7 @@ Once you have created targets, you can perform various operations on them. The f
 
 #### Disabled Targets
 
-When executing the `targets sync` command, `synctropy` will check if the target is disabled before initiating the synchronization process for each target. If any disabled targets are encountered, `synctropy` will skip them without generating an error. It will proceed to sync the remaining selected targets, if any are available. In essence, `synctropy` gracefully handles disabled targets during the synchronization process, allowing for the successful synchronization of the remaining enabled targets.
+When executing the `targets sync` and `targets hooks run` commands or other commands that depends on hooks to function (like `targets edit` and `targets view`), `synctropy` will check if the target is disabled before initiating the synchronization process for each target. It will also verify if the crate is disabled before iterating through the targets. If any disabled targets are encountered, `synctropy` will skip them without generating an error. It will proceed to sync the remaining selected targets, if any are available (only if the crate is enabled). In essence, `synctropy` gracefully handles disabled targets during the synchronization process, allowing for the successful synchronization of the remaining enabled targets.
 
 #### Hooks
 
