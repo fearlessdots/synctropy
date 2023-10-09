@@ -1033,6 +1033,28 @@ func targetsRunHooks(crate Crate, targets []Target, hooks []string, cratePreHook
 
 		showInfoSectionTitle(displayTargetTag("Running hook(s)", target), program.indentLevel)
 
+		isTargetDisabled, response := isTargetDisabled(target, program)
+		if response.exitCode != 0 {
+			response.indentLevel = program.indentLevel + 1
+
+			return response
+		}
+
+		if isTargetDisabled == true {
+			response = functionResponse{
+				exitCode:    0,
+				message:     "Target is disabled",
+				logLevel:    "attention",
+				indentLevel: program.indentLevel + 1,
+			}
+			handleFunctionResponse(response, false)
+
+			space()
+			space()
+
+			continue
+		}
+
 		program = incrementProgramIndentLevel(program, 1)
 
 		space()
