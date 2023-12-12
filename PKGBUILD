@@ -1,5 +1,5 @@
 pkgname=synctropy
-pkgver=0.2.2
+pkgver=0.2.3
 pkgrel=1
 pkgdesc="A wrapper for management and syncing of crates via syncing utilities like unison and rsync using hooks, with template support."
 arch=('i686' 'x86_64' 'armv7h' 'aarch64')
