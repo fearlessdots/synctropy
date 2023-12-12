@@ -31,19 +31,21 @@ Bearing a name that fuses `sync` and the scientific concept `syntropy` - signify
 
 ## Use Cases
 
-Synctropy can be used in a wide range of scenarios to simplify and automate synchronization tasks. Here are some use cases where Synctropy can be beneficial:
+`synctropy` can be used in a wide range of scenarios to simplify and automate synchronization tasks. Here are some use cases where it can be beneficial:
 
 ### Personal File Syncing
 
-Synctropy can be used in conjunction with programs like rsync and Unison to sync personal files between different devices or cloud storage services. By defining `target` configurations that specify the source and destination paths, you can easily keep your files in sync, ensuring that you have the latest versions available on all your devices.
+`synctropy` can be used in conjunction with programs like rsync and Unison to sync personal files between different devices or cloud storage services. By defining `target` configurations that specify the source and destination paths, you can easily keep your files in sync, ensuring that you have the latest versions available on all your devices.
+
+**Note:** A template for this use case that I use is provided in the `./templates` folder of the source code.
 
 ### Backup and Restore
 
-Synctropy can be used as a backup and restore tool for important files or directories on remote systems. By creating `target` configurations that specify the source files or directories, you can easily back up the data to another location. In case of data loss or system failure, you can then use Synctropy to restore the backed-up files, ensuring the availability and integrity of your data.
+`synctropy` can be used as a backup and restore tool for important files or directories on remote systems. By creating `target` configurations that specify the source files or directories, you can easily back up the data to another location. In case of data loss or system failure, you can then use the program to restore the backed-up files, ensuring the availability and integrity of your data.
 
 ### Distributed Systems Management
 
-Synctropy could also be useful for managing and synchronizing configurations across multiple distributed systems. Whether you have a cluster of servers, a network of IoT devices, or a fleet of containers, Synctropy can help ensure consistency and reduce manual effort by synchronizing configurations across all the systems. This helps maintain a unified state and simplifies the management of distributed environments.
+`synctropy` could also be useful for managing and synchronizing configurations across multiple distributed systems. Whether you have a cluster of servers, a network of IoT devices, or a fleet of containers, it can help ensure consistency and reduce manual effort by synchronizing configurations across all the systems. This helps maintain a unified state and simplifies the management of distributed environments.
 
 ## Installation
 
@@ -149,6 +151,23 @@ The documentation will be generated in the `./docs` directory by default. You ca
 synctropy docs generate -o <output_dir>
 ```
 
+### Autocompletion Files
+
+It is possible to generate autocompletion files for this program to be used with the following shells:
+
+- `bash`
+- `zsh`
+- `fish`
+- `powershell`
+
+For example, to build the autocompletion file for `fish`, run:
+
+```shell
+synctropy completion fish > <output_file>
+```
+
+> By default, the `Makefile` and, consequentially, the `PKGBUILD` automatically build the completion files for `bash`, `zsh`, and `fish`.
+
 ## Documentation
 
 ### Available Subcommands
@@ -156,6 +175,7 @@ synctropy docs generate -o <output_dir>
 - synctropy: The main command for the program.
   - version: Show the program's version.
   - init: Create user data directory
+  - completion: Generate autocompletion files (`bash`, `zsh`, `fish`, and `powershell`)
   - docs: Program documentation.
     - generate: Generate program documentation (markdown files).
   - utils: Utilities for hooks execution.
